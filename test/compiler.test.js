@@ -16,6 +16,22 @@ test('integer arithmetic follows 32-bit two\'s complement semantics', () => {
   `), [3, -3, 1, -1, -2147483648, 0, -2147483648, -4, 2, 7, 5]);
 });
 
+test('the smallest int can be written as a literal', () => {
+  for (const optimize of [true, false]) {
+    assert.deepEqual(
+      run('fn main() { let m = -2147483648; print(m); print(m - 1); print(- 2147483648 + 1); }', { optimize }),
+      ['-2147483648', '2147483647', '-2147483647'],
+    );
+  }
+  assert.throws(() => run('fn main() { print(2147483648); }'), /does not fit in 32 bits/);
+  assert.throws(() => run('fn main() { print(-2147483649); }'), /does not fit in 32 bits/);
+});
+
+test('pathological nesting is a compile error, not a crash', () => {
+  const source = `fn main() { print(${'('.repeat(20000)}1${')'.repeat(20000)}); }`;
+  assert.throws(() => run(source), (e) => e instanceof CompileError && /nested too deeply/.test(e.message));
+});
+
 test('precedence and associativity', () => {
   prints(main('print(2 + 3 * 4); print((2 + 3) * 4); print(10 - 4 - 3); print(2 * 3 % 4); print(-2 * 3);'),
     [14, 20, 3, 2, -6]);

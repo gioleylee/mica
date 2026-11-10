@@ -16,7 +16,13 @@ if (!['run', 'build'].includes(command) || !file) {
   process.exit(2);
 }
 
-const source = readFileSync(file, 'utf8');
+let source;
+try {
+  source = readFileSync(file, 'utf8');
+} catch (e) {
+  console.error(`mica: cannot read ${file}: ${e.code ?? e.message}`);
+  process.exit(2);
+}
 try {
   if (command === 'build') {
     const o = args.indexOf('-o');

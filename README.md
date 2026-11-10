@@ -85,7 +85,7 @@ examples/bad.mica:3:17: error: '+' needs operands of the same type, got int and 
 
 ## Tests
 
-`npm test` runs 16 tests on Node's built-in runner:
+`npm test` runs 18 tests on Node's built-in runner:
 
 - **Semantics** – integer wrap-around, truncating division, operator precedence, float
   conversion, short-circuit evaluation, scoping, recursion, arrays, heap growth.

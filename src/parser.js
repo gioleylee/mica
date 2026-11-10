@@ -164,7 +164,16 @@ export function parse(src) {
 
   function unary() {
     const t = peek();
-    if (eat('-')) return node(t, 'Unary', { op: '-', operand: unary() });
+    if (eat('-')) {
+      // -2147483648 is a valid int although 2147483648 alone is not, so the
+      // smallest int is read as a single literal rather than a negation.
+      const n = peek();
+      if (n.kind === 'int' && n.value === 0x80000000) {
+        pos++;
+        return node(t, 'Num', { value: -0x80000000, type: 'int' });
+      }
+      return node(t, 'Unary', { op: '-', operand: unary() });
+    }
     if (eat('!')) return node(t, 'Unary', { op: '!', operand: unary() });
     let e = primary();
     while (at('[')) {

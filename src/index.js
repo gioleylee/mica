@@ -9,8 +9,15 @@ export { CompileError };
 
 // Returns the module as a Uint8Array. Throws CompileError on invalid programs.
 export function compile(source, { optimize: opt = true } = {}) {
-  const program = check(parse(source));
-  return generate(opt ? optimize(program) : program);
+  try {
+    const program = check(parse(source));
+    return generate(opt ? optimize(program) : program);
+  } catch (e) {
+    // Every pass is recursive, so pathological nesting exhausts the JavaScript
+    // stack. Report that as a compile error like any other invalid program.
+    if (e instanceof RangeError) throw new CompileError('program is nested too deeply to compile', 1, 1);
+    throw e;
+  }
 }
 
 export function instantiate(source, { print = console.log, ...options } = {}) {
