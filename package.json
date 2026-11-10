@@ -1,0 +1,13 @@
+{
+  "name": "mica-lang",
+  "version": "0.1.0",
+  "description": "A small statically typed language that compiles to WebAssembly",
+  "type": "module",
+  "license": "MIT",
+  "bin": { "mica": "bin/mica.js" },
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test",
+    "bench": "node bench/bench.js"
+  }
+}

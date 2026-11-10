@@ -1,0 +1,63 @@
+// Two-dimensional gravitational simulation with a symplectic Euler integrator.
+// Prints the total energy before and after; a good integrator keeps it nearly constant.
+fn energy(x: float[], y: float[], vx: float[], vy: float[], m: float[]): float {
+  let n = len(x);
+  let e = 0.0;
+  let i = 0;
+  while i < n {
+    e = e + 0.5 * m[i] * (vx[i] * vx[i] + vy[i] * vy[i]);
+    let j = i + 1;
+    while j < n {
+      let dx = x[i] - x[j];
+      let dy = y[i] - y[j];
+      e = e - m[i] * m[j] / sqrt(dx * dx + dy * dy);
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  return e;
+}
+
+fn step(x: float[], y: float[], vx: float[], vy: float[], m: float[], dt: float) {
+  let n = len(x);
+  let i = 0;
+  while i < n {
+    let j = 0;
+    while j < n {
+      if i != j {
+        let dx = x[j] - x[i];
+        let dy = y[j] - y[i];
+        let d2 = dx * dx + dy * dy;
+        let inv = m[j] / (d2 * sqrt(d2));
+        vx[i] = vx[i] + dx * inv * dt;
+        vy[i] = vy[i] + dy * inv * dt;
+      }
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  i = 0;
+  while i < n {
+    x[i] = x[i] + vx[i] * dt;
+    y[i] = y[i] + vy[i] * dt;
+    i = i + 1;
+  }
+}
+
+fn main() {
+  let n = 3;
+  let x = new float[n];  let y = new float[n];
+  let vx = new float[n]; let vy = new float[n];
+  let m = new float[n];
+  m[0] = 1000.0;
+  m[1] = 1.0;  x[1] = 10.0; vy[1] = 10.0;
+  m[2] = 0.5;  x[2] = -20.0; vy[2] = -7.0;
+
+  print(energy(x, y, vx, vy, m));
+  let t = 0;
+  while t < 100000 {
+    step(x, y, vx, vy, m, 0.0001);
+    t = t + 1;
+  }
+  print(energy(x, y, vx, vy, m));
+}
